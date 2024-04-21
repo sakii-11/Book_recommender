@@ -1,6 +1,6 @@
 <h1>Book Recommendation</h1>
 
-<h1>Top %0 books page</h1>
+<h1>Top 50 books page</h1>
 ![Screenshot](https://github.com/sakii-11/Book_recommender/blob/main/sc/Screenshot%202024-04-22%20002321.png)
 
 
