@@ -2,13 +2,40 @@ from flask import Flask, render_template,request
 import pickle
 import numpy as np
 import random
+import os
+import boto3
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Load AWS credentials from environment variables
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_KEY")
+)
+
+S3_BUCKET = os.getenv("S3_BUCKET")
+if not S3_BUCKET:
+    raise ValueError("❌ ERROR: S3_BUCKET environment variable is not set!")
+
+print(f"✅ S3_BUCKET is set to: {S3_BUCKET}")
+MODEL_FILES = ["pop.pkl", "pt.pkl", "similarity_score.pkl", "books.pkl"]
+os.makedirs("models", exist_ok=True)
+
+# Download models from S3 (since they're in the bucket root)
+for model in MODEL_FILES:
+    model_path = f"models/{model}"
+    if not os.path.exists(model_path): 
+        s3.download_file(S3_BUCKET, model, model_path)
+        print(f"✅ Downloaded {model} from S3.")
 
 application = Flask(__name__)
 
-popular_df = pickle.load(open('pop.pkl', 'rb'))
-pt = pickle.load(open('pt.pkl', 'rb'))
-similarity_score = pickle.load(open('similarity_score.pkl', 'rb'))
-books = pickle.load(open('books.pkl', 'rb'))
+popular_df = pickle.load(open('models/pop.pkl', 'rb'))
+pt = pickle.load(open('models/pt.pkl', 'rb'))
+similarity_score = pickle.load(open('models/similarity_score.pkl', 'rb'))
+books = pickle.load(open('models/books.pkl', 'rb'))
 
 @application.route('/')
 def index():
@@ -55,6 +82,8 @@ def Basedonfive_ui():
 @application.route('/recommend_two_books' , methods =['POST'])
 def recommend_two():
     selected_options = request.form.getlist('selected_options')
+    if len(selected_options) < 2:
+        return "Please select at least two books!", 400
     a= selected_options[0]
     index = np.where(pt.index == a)[0][0]
     similar_items = sorted(list(enumerate(similarity_score[index])), key=lambda x: x[1],
