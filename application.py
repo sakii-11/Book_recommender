@@ -17,9 +17,9 @@ s3 = boto3.client(
 
 S3_BUCKET = os.getenv("S3_BUCKET")
 if not S3_BUCKET:
-    raise ValueError("❌ ERROR: S3_BUCKET environment variable is not set!")
+    raise ValueError("ERROR: S3_BUCKET environment variable is not set!")
 
-print(f"✅ S3_BUCKET is set to: {S3_BUCKET}")
+
 MODEL_FILES = ["pop.pkl", "pt.pkl", "similarity_score.pkl", "books.pkl"]
 os.makedirs("models", exist_ok=True)
 
@@ -28,7 +28,6 @@ for model in MODEL_FILES:
     model_path = f"models/{model}"
     if not os.path.exists(model_path): 
         s3.download_file(S3_BUCKET, model, model_path)
-        print(f"✅ Downloaded {model} from S3.")
 
 application = Flask(__name__)
 
