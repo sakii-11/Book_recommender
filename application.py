@@ -32,10 +32,13 @@ for model in MODEL_FILES:
 
 application = Flask(__name__)
 
+# retrieving the four models 
 popular_df = pickle.load(open('models/pop.pkl', 'rb'))
 pt = pickle.load(open('models/pt.pkl', 'rb'))
 similarity_score = pickle.load(open('models/similarity_score.pkl', 'rb'))
 books = pickle.load(open('models/books.pkl', 'rb'))
+
+
 
 @application.route('/')
 def index():
